@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "aws-amplify": "^6.10.2",
-    "aws-amplify-react": "^5.1.43"
+    "oidc-client-ts": "^3.1.0"
   }
 }
