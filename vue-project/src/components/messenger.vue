@@ -3,7 +3,8 @@
     <!-- Sidebar mit Kontakten -->
     <aside class="contacts">
       <header class="contacts-header">
-        <h2>Kontakte</h2>
+        <div class="circle element" @click="openDialog()"></div>
+        <h2 class="element">Kontakte</h2>
       </header>
       <ul class="contacts-list">
         <li
@@ -33,6 +34,13 @@
         </div>
       </div>
 
+      <!-- Dialog -->
+      <dialog id="circleDialog">
+        <h2>Profil</h2>
+        <p>Account Details:</p>
+        <button @click="closeDialog()">Schließen</button>
+      </dialog>
+
       <!-- Eingabefeld -->
       <footer class="chat-input" v-if="selectedContact">
         <input
@@ -51,14 +59,18 @@ export default {
   data() {
     return {
       contacts: [
-        { name: "Alice", messages: [
-            { text: "Hi! Wie geht's?", time: "10:00", isMine: false },
-            { text: "Gut, und dir?", time: "10:01", isMine: true }
-          ]},
-        { name: "Bob", messages: [
-            { text: "Hallo!", time: "09:00", isMine: false }
-          ]},
-        { name: "Charlie", messages: [] }
+        {
+          name: "Alice", messages: [
+            {text: "Hi! Wie geht's?", time: "10:00", isMine: false},
+            {text: "Gut, und dir?", time: "10:01", isMine: true}
+          ]
+        },
+        {
+          name: "Bob", messages: [
+            {text: "Hallo!", time: "09:00", isMine: false}
+          ]
+        },
+        {name: "Charlie", messages: []}
       ],
       selectedContact: null,
       newMessage: "",
@@ -72,14 +84,25 @@ export default {
       if (this.newMessage.trim() !== "" && this.selectedContact) {
         this.selectedContact.messages.push({
           text: this.newMessage,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          time: new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
           isMine: true
         });
         this.newMessage = "";
       }
+    },
+    openDialog() {
+      const dialog = document.getElementById('circleDialog');
+      dialog.showModal();
+    },
+    closeDialog() {
+      const dialog = document.getElementById('circleDialog');
+      dialog.close();
     }
   }
-};
+}
+;
+
+
 </script>
 
 <style scoped>
@@ -102,6 +125,9 @@ export default {
   background-color: #007bff;
   color: white;
   text-align: center;
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Align items vertically */
+  gap: 1rem;
 }
 
 .contacts-list {
@@ -197,6 +223,48 @@ export default {
 }
 
 .chat-input button:hover {
+  background-color: #0056b3;
+}
+
+.circle {
+  width: 100px;
+  height: 100px;
+  background-color: #3498db;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.element {
+  display: inline-block;
+  margin: 10px;
+  padding: 10px;
+  background-color: #3498db;
+  color: white;
+}
+
+dialog {
+  border: none;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
   background-color: #0056b3;
 }
 </style>
