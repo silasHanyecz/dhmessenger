@@ -35,6 +35,7 @@ const data = reactive({
 async function dynamoRequest() {
   const url = 'https://x3cc8ws22g.execute-api.us-east-1.amazonaws.com/default/DynamoDb';
   const jwtToken = document.getElementById("access-token").innerText // Replace with your actual JWT token
+  localStorage.setItem("jwtToken", jwtToken)
   console.log("jwtToken", jwtToken)
   try {
     const response = await axios.get(url, {
