@@ -15,7 +15,9 @@
           {{ contact.name }}
         </li>
       </ul>
+      <button @click="openAddContactDialog()">New Contact</button>
     </aside>
+
 
     <!-- Chat-Bereich -->
     <main class="chat">
@@ -38,7 +40,20 @@
       <dialog id="circleDialog">
         <h2>Profil</h2>
         <p>Account Details:</p>
+        <input type="text" readonly value="user.id">
         <button @click="closeDialog()">Schließen</button>
+      </dialog>
+
+      <!-- New Contact Dialog -->
+      <dialog id="addContactDialog">
+        <h2>Neuen Kontakt hinzufügen</h2>
+        <label for="name">Username:</label>
+        <input type="text" id="contactName" name="name" required/>
+
+        <div class="dialog-buttons">
+          <button @click="saveContact()">Speichern</button>
+          <button @click="closeAddContactDialog">Abbrechen</button>
+        </div>
       </dialog>
 
       <!-- Eingabefeld -->
@@ -55,9 +70,15 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
+      user: {
+        id: "",
+        name: ""
+      },
       contacts: [
         {
           name: "Alice", messages: [
@@ -66,8 +87,10 @@ export default {
           ]
         },
         {
-          name: "Bob", messages: [
-            {text: "Hallo!", time: "09:00", isMine: false}
+          name: "Jan", messages: [
+            {text: "Hallo", time: "09:00", isMine: false},
+            {text: "Nei oder", time: "09:00", isMine: true},
+
           ]
         },
         {name: "Charlie", messages: []}
@@ -97,11 +120,51 @@ export default {
     closeDialog() {
       const dialog = document.getElementById('circleDialog');
       dialog.close();
+    },
+    openAddContactDialog() {
+      const dialog = document.getElementById('addContactDialog');
+      dialog.showModal(); // Öffnet das Dialogfenster
+    },
+
+    closeAddContactDialog() {
+      const dialog = document.getElementById('addContactDialog');
+      dialog.close();
+    },
+    saveContact() {
+      const username = document.getElementById("contactName").value;
+      const url = 'https://8nsdchyc06.execute-api.us-east-1.amazonaws.com/default/addKontakt';
+
+      const id = localStorage.getItem("jwtToken");
+      if (!id) {
+        console.error("Kein Token gefunden!");
+        return;
+      }
+
+      console.log("Token:", id);
+
+      const user = {
+        username: username,
+        token: id
+      };
+
+      console.log("Neuer Kontakt:", user);
+
+      // Anfrage senden
+      axios.post(url, user, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${id}`
+        },
+      })
+          .then(response => {
+            console.log('Kontakt gespeichert:', response.data);
+          })
+          .catch(error => {
+            console.error('Fehler beim Senden der Daten:', error);
+          });
     }
   }
-}
-;
-
+};
 
 </script>
 
@@ -266,5 +329,29 @@ button {
 
 button:hover {
   background-color: #0056b3;
+}
+
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+label {
+  font-weight: bold;
+}
+
+input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
 }
 </style>
