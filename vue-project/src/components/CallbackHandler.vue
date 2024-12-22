@@ -13,7 +13,7 @@
 </template>
 <script setup type="module">
 import {userManager} from "../js/aws-export.js";
-import {onMounted} from 'vue'
+import {onMounted, reactive} from 'vue'
 import axios from "axios";
 
 onMounted(() => {
@@ -26,7 +26,12 @@ onMounted(() => {
     document.getElementById("refresh-token").textContent = user.refresh_token;
   });
 })
-
+const data = reactive({
+  user: {
+    id: "",
+    name: ""
+  }
+});
 async function dynamoRequest() {
   const url = 'https://x3cc8ws22g.execute-api.us-east-1.amazonaws.com/default/DynamoDb';
   const jwtToken = document.getElementById("access-token").innerText // Replace with your actual JWT token
@@ -38,6 +43,17 @@ async function dynamoRequest() {
       },
     });
     console.log('Response:', response.data);
+    data.user.id = response.data.Id;
+    data.user.name = response.data.Username;
+    console.log("data", data.user)
+    axios.post('/messenger', data.user)
+        .then(response => {
+          console.log('Daten erfolgreich gesendet:', response.data);
+        })
+        .catch(error => {
+          console.error('Fehler beim Senden der Daten:', error);
+        });
+    location.replace("/messenger")
   } catch (error) {
     console.error('Error:', error.response ? error.response.data : error.message);
   }
