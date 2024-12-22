@@ -71,7 +71,30 @@
 
 <script>
 import axios from "axios";
+import {onMounted} from "vue";
+import {userManager} from "../js/aws-export.js";
 
+
+onMounted( ()=> {
+  const id = localStorage.getItem("jwtToken")
+  const url = 'https://gs6bhwftg4.execute-api.us-east-1.amazonaws.com/default/getUserById';
+
+  userManager.getUser().contacts.forEach( contact =>{
+    axios.get(url,contact.id, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${id}`
+      },
+    })
+        .then(response => {
+          console.log('Messge gesendet:', response.data);
+        })
+        .catch(error => {
+          console.error('Fehler beim Senden der Daten:', error);
+        });
+  })
+
+})
 export default {
   data() {
     return {
@@ -104,15 +127,34 @@ export default {
       this.selectedContact = contact;
     },
     sendMessage() {
+      const url = 'https://8nsdchyc06.execute-api.us-east-1.amazonaws.com/default/addKontakt';
+      const id = localStorage.getItem("jwtToken")
       if (this.newMessage.trim() !== "" && this.selectedContact) {
         this.selectedContact.messages.push({
           text: this.newMessage,
           time: new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
           isMine: true
         });
+        let data = {
+          message: this.newMessage,
+          user: this.selectedContact.id
+        }
+        axios.post(url, data, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${id}`
+          },
+        })
+            .then(response => {
+              console.log('Messge gesendet:', response.data);
+            })
+            .catch(error => {
+              console.error('Fehler beim Senden der Daten:', error);
+            });
         this.newMessage = "";
       }
     },
+
     openDialog() {
       const dialog = document.getElementById('circleDialog');
       dialog.showModal();
@@ -162,7 +204,7 @@ export default {
           .catch(error => {
             console.error('Fehler beim Senden der Daten:', error);
           });
-    }
+    },
   }
 };
 
